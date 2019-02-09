@@ -13,23 +13,29 @@ namespace NewsPlugin
         {
             List<Result> results = new List<Result>();
 
-            RssManager reader = new RssManager("http://feeds.tv2.dk/nyhederne_seneste/rss");
-
-            foreach (Rss.Items items in reader.GetFeed())
+            foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys)
             {
-                Result newStory = new Result();
-                newStory.Title = items.Title;
-                newStory.SubTitle = items.Date.ToShortDateString();
-
-                newStory.Action = context =>
+                if (Feeds.FeedsDictionary[dictionaryKey])
                 {
-                    // Do something
-                    System.Diagnostics.Process.Start(items.Link); // open browser
+                    RssManager reader = new RssManager(Feeds.FeedsUrl[dictionaryKey]);
 
-                    return false;// True false bestemmer hvorvidt vox skal lukkes eller forblive åbent
-                };
+                    foreach (Rss.Items items in reader.GetFeed())
+                    {
+                        Result newStory = new Result();
+                        newStory.Title = items.Title;
+                        newStory.SubTitle = items.Date.ToShortDateString();
 
-                results.Add(newStory);
+                        newStory.Action = context =>
+                        {
+                            // Do something
+                            System.Diagnostics.Process.Start(items.Link); // open browser
+
+                            return false;// True false bestemmer hvorvidt vox skal lukkes eller forblive åbent
+                        };
+
+                        results.Add(newStory);
+                    }
+                }
             }
 
             return results;
