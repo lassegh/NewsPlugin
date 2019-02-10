@@ -9,11 +9,13 @@
     <UserControl.DataContext>
         <local:ViewModel/>
     </UserControl.DataContext>
-    <Grid>
-        <CheckBox Command="{Binding Dr1, Mode=TwoWay}" Content="DR" HorizontalAlignment="Left" Margin="77,100,0,0" VerticalAlignment="Top"/>
-        <CheckBox Command="{Binding Tv2, Mode=TwoWay}" Content="TV2" HorizontalAlignment="Left" Margin="77,140,0,0" VerticalAlignment="Top"/>
-        <CheckBox Command="{Binding Bt, Mode=TwoWay}" Content="BT" HorizontalAlignment="Left" Margin="77,180,0,0" VerticalAlignment="Top"/>
-        <CheckBox Command="{Binding Eb, Mode=TwoWay}" Content="Ekstra Bladet" HorizontalAlignment="Left" Margin="77,220,0,0" VerticalAlignment="Top"/>
+    <Border BorderBrush="Gray" Margin="10" BorderThickness="1">
+        <Grid>
+            <CheckBox Command="{Binding Dr1, Mode=TwoWay}" Content="DR" HorizontalAlignment="Left" Margin="77,100,0,0" VerticalAlignment="Top"/>
+            <CheckBox Command="{Binding Tv2, Mode=TwoWay}" Content="TV2" HorizontalAlignment="Left" Margin="77,140,0,0" VerticalAlignment="Top"/>
+            <CheckBox Command="{Binding Bt, Mode=TwoWay}" Content="BT" HorizontalAlignment="Left" Margin="77,180,0,0" VerticalAlignment="Top"/>
+            <CheckBox Command="{Binding Eb, Mode=TwoWay}" Content="Ekstra Bladet" HorizontalAlignment="Left" Margin="77,220,0,0" VerticalAlignment="Top"/>
 
-    </Grid>
+        </Grid>
+    </Border>
 </UserControl>

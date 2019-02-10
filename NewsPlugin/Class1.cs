@@ -11,32 +11,69 @@ namespace NewsPlugin
     {
         public List<Result> Query(Query query)
         {
-            List<Result> results = new List<Result>();
+            List<Result> results = new List<Result>(); // Opretter liste af resultater
 
-            foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys)
+            if (query.RawQuery.Length > 4)
             {
-                if (Feeds.FeedsDictionary[dictionaryKey])
+                string queryString = query.RawQuery.Substring(4);
+
+                foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys) // Gennemløber alle feeds i Feeds
                 {
-                    RssManager reader = new RssManager(Feeds.FeedsUrl[dictionaryKey]);
-
-                    foreach (Rss.Items items in reader.GetFeed())
+                    if (Feeds.FeedsDictionary[dictionaryKey]) // Tjekker om feeded skal bruges (bool)
                     {
-                        Result newStory = new Result();
-                        newStory.Title = items.Title;
-                        newStory.SubTitle = items.Date.ToShortDateString();
+                        RssManager reader = new RssManager(Feeds.FeedsUrl[dictionaryKey]); // Opretter reader med feeded
 
-                        newStory.Action = context =>
+                        foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
                         {
-                            // Do something
-                            System.Diagnostics.Process.Start(items.Link); // open browser
+                            if (items.Title.ToLower().Contains(queryString.ToLower()) || items.Description.ToLower().Contains(queryString.ToLower())) // Tjekker om query passer med noget i historien
+                            {
+                                Result newStory = new Result(); // Opretter resultat til listen
+                                newStory.Title = items.Title; // Sætter title
+                                newStory.SubTitle = items.Date.ToShortDateString() + " " + dictionaryKey; // Sætter subtitle til dato + navn på feed
 
-                            return false;// True false bestemmer hvorvidt vox skal lukkes eller forblive åbent
-                        };
+                                newStory.Action = context => // sætter action på hver story
+                                {
+                                    // Do something
+                                    System.Diagnostics.Process.Start(items.Link); // open browser
 
-                        results.Add(newStory);
+                                    return true;// True bestemmer at wox skal lukke, når man trykker på story
+                                };
+
+                                results.Add(newStory); // tilføjer til listen
+                            }
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys) // Gennemløber alle feeds i Feeds
+                {
+                    if (Feeds.FeedsDictionary[dictionaryKey]) // Tjekker om feeded skal bruges (bool)
+                    {
+                        RssManager reader = new RssManager(Feeds.FeedsUrl[dictionaryKey]); // Opretter reader med feeded
+
+                        foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
+                        {
+                            Result newStory = new Result(); // Opretter resultat til listen
+                            newStory.Title = items.Title; // Sætter title
+                            newStory.SubTitle = items.Date.ToShortDateString() + " " + dictionaryKey; // Sætter subtitle til dato + navn på feed
+
+                            newStory.Action = context => // sætter action på hver story
+                            {
+                                // Do something
+                                System.Diagnostics.Process.Start(items.Link); // open browser
+
+                                return true;// True bestemmer at wox skal lukke, når man trykker på story
+                            };
+
+                            results.Add(newStory); // tilføjer til listen
+                        }
                     }
                 }
             }
+
 
             return results;
         }
