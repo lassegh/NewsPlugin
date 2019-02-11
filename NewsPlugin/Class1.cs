@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using Wox.Plugin;
+using Wox.Infrastructure;
 
 namespace NewsPlugin
 {
-    public class Class1 : IPlugin
+    public class Class1 : IPlugin, ISettingProvider
     {
         public List<Result> Query(Query query)
         {
@@ -81,6 +83,12 @@ namespace NewsPlugin
         public void Init(PluginInitContext context)
         {
             //throw new NotImplementedException();
+        }
+
+        public Control CreateSettingPanel()
+        {
+            var control = new Control();
+            return control;
         }
     }
 }

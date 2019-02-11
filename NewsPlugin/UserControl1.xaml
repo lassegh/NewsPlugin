@@ -5,16 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NewsPlugin"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.DataContext>
-        <local:ViewModel/>
-    </UserControl.DataContext>
+             d:DesignHeight="300" d:DesignWidth="300">
     <Border BorderBrush="Gray" Margin="10" BorderThickness="1">
         <Grid>
-            <CheckBox Command="{Binding Dr1, Mode=TwoWay}" Content="DR" HorizontalAlignment="Left" Margin="77,100,0,0" VerticalAlignment="Top"/>
-            <CheckBox Command="{Binding Tv2, Mode=TwoWay}" Content="TV2" HorizontalAlignment="Left" Margin="77,140,0,0" VerticalAlignment="Top"/>
-            <CheckBox Command="{Binding Bt, Mode=TwoWay}" Content="BT" HorizontalAlignment="Left" Margin="77,180,0,0" VerticalAlignment="Top"/>
-            <CheckBox Command="{Binding Eb, Mode=TwoWay}" Content="Ekstra Bladet" HorizontalAlignment="Left" Margin="77,220,0,0" VerticalAlignment="Top"/>
+            <CheckBox x:Name="Dr1Box" Click="Dr1_onClick" Content="DR" HorizontalAlignment="Left" Margin="77,60,0,0" VerticalAlignment="Top"/>
+            <CheckBox Content="TV2" HorizontalAlignment="Left" Margin="77,100,0,0" VerticalAlignment="Top"/>
+            <CheckBox Content="BT" HorizontalAlignment="Left" Margin="77,140,0,0" VerticalAlignment="Top"/>
+            <CheckBox Content="Ekstra Bladet" HorizontalAlignment="Left" Margin="77,180,0,0" VerticalAlignment="Top"/>
 
         </Grid>
     </Border>
