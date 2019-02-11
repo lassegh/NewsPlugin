@@ -2,18 +2,43 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
+using Wox.Infrastructure.Storage;
 using Wox.Plugin;
-using Wox.Infrastructure;
 
 namespace NewsPlugin
 {
-    public class Class1 : IPlugin, ISettingProvider
+    public class Class1 : IPlugin, ISettingProvider, IPluginI18n
     {
         public List<Result> Query(Query query)
         {
             List<Result> results = new List<Result>(); // Opretter liste af resultater
+
+            Result newSetting = new Result(); // Opretter resultat til listen
+            newSetting.Title = "Settings";
+            newSetting.Action = context => // sætter action på hver story
+            {
+                // Do something
+
+                var thread = new Thread(() =>
+                {
+                    var bw = new Window();
+                    bw.Show();
+                    bw.Closed += (s, e) => bw.Dispatcher.InvokeShutdown();
+                    Dispatcher.Run();
+                });
+                thread.SetApartmentState(ApartmentState.STA);
+                //thread.IsBackground = true;
+                thread.Start();
+
+                return true;// True bestemmer at wox skal lukke, når man trykker på story
+            };
+
+            results.Add(newSetting); // tilføjer til listen
 
             if (query.RawQuery.Length > 4)
             {
@@ -32,6 +57,7 @@ namespace NewsPlugin
                                 Result newStory = new Result(); // Opretter resultat til listen
                                 newStory.Title = items.Title; // Sætter title
                                 newStory.SubTitle = items.Date.ToShortDateString() + " " + dictionaryKey; // Sætter subtitle til dato + navn på feed
+                                newStory.IcoPath = Feeds.FeedsIcon[dictionaryKey];
 
                                 newStory.Action = context => // sætter action på hver story
                                 {
@@ -61,6 +87,7 @@ namespace NewsPlugin
                             Result newStory = new Result(); // Opretter resultat til listen
                             newStory.Title = items.Title; // Sætter title
                             newStory.SubTitle = items.Date.ToShortDateString() + " " + dictionaryKey; // Sætter subtitle til dato + navn på feed
+                            newStory.IcoPath = Feeds.FeedsIcon[dictionaryKey];
 
                             newStory.Action = context => // sætter action på hver story
                             {
@@ -76,7 +103,6 @@ namespace NewsPlugin
                 }
             }
 
-
             return results;
         }
 
@@ -87,8 +113,19 @@ namespace NewsPlugin
 
         public Control CreateSettingPanel()
         {
-            var control = new Control();
+            var control = new UserControl1();
+
             return control;
+        }
+
+        public string GetTranslatedPluginTitle()
+        {
+            return "News";
+        }
+
+        public string GetTranslatedPluginDescription()
+        {
+            return "Shows news";
         }
     }
 }

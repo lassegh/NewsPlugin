@@ -76,5 +76,25 @@ namespace NewsPlugin
         {
             
         }
+
+        private void UserControl1_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Dr1Box.Visibility = Visibility.Visible;
+        }
+
+        private void Tv2Box_OnClick(object sender, RoutedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void BtBox_OnClick(object sender, RoutedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void EbBox_OnClick(object sender, RoutedEventArgs e)
+        {
+            //
+        }
     }
 }

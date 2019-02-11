@@ -23,6 +23,12 @@ namespace NewsPlugin
             {"Bt","https://www.bt.dk/bt/seneste/rss" },
             {"Eb","https://ekstrabladet.dk/rssfeed/all/" }
         };
-
+        public static Dictionary<string, string> FeedsIcon = new Dictionary<string, string>()
+        {
+            {"Dr1","Images\\dr.png"},
+            {"Tv2","Images\\tv2.png" },
+            {"Bt","Images\\bt.png" },
+            {"Eb","Images\\eb.png" }
+        };
     }
 }
