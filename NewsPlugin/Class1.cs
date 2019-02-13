@@ -27,6 +27,12 @@ namespace NewsPlugin
                 var thread = new Thread(() =>
                 {
                     var bw = new Window();
+                    StackPanel stackPanel = new StackPanel();
+                    Label label = new Label();
+                    label.Content = "Fuck";
+
+                    stackPanel.Children.Add(label);
+                    bw.Content = stackPanel;
                     bw.Show();
                     bw.Closed += (s, e) => bw.Dispatcher.InvokeShutdown();
                     Dispatcher.Run();
