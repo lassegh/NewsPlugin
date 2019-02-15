@@ -11,9 +11,9 @@ namespace NewsPlugin
         public static Dictionary<string,bool> FeedsDictionary = new Dictionary<string, bool>()
         {
             {"Dr1",true},
-            {"Tv2",true },
-            {"Bt",true },
-            {"Eb",true }
+            {"Tv2",true},
+            {"Bt",true},
+            {"Eb",true}
         };
         //
         public static Dictionary<string, string> FeedsUrl = new Dictionary<string, string>()
