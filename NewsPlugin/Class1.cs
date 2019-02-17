@@ -20,12 +20,15 @@ namespace NewsPlugin
         {
             List<Result> results = new List<Result>(); // Opretter liste af resultater
 
+            /* Settings window has been commented out, as it is not fully implemented 
             results.Add(SettingsWindow()); // tilføjer til listen
-            string queryString = "";
+            */
+
+            string queryString = ""; // Opretter string til søgeresultat
 
             if (query.RawQuery.Length > 4)
             {
-                queryString = query.RawQuery.Substring(4);
+                queryString = query.RawQuery.Substring(4); // Tilføjer søgning til string
             }
 
             foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys) // Gennemløber alle feeds i Feeds
@@ -36,7 +39,7 @@ namespace NewsPlugin
 
                     foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
                     {
-                        if (query.RawQuery.Length > 4)
+                        if (query.RawQuery.Length > 4) // Hvis der søges
                         {
                             if (items.Title.ToLower().Contains(queryString.ToLower()) ||
                                 items.Description.ToLower().Contains(queryString.ToLower())
@@ -45,14 +48,14 @@ namespace NewsPlugin
                                 results.Add(NewStory(items, dictionaryKey)); // tilføjer til listen
                             }
                         }
-                        else results.Add(NewStory(items, dictionaryKey));
+                        else results.Add(NewStory(items, dictionaryKey)); // tilføjer alle stories til listen
                     }
                 }
             }
             return results;
         }
 
-        private Result NewStory(Rss.Items items, string dictionaryKey)
+        public Result NewStory(Rss.Items items, string dictionaryKey)
         {
             Result newStory = new Result(); // Opretter resultat til listen
             newStory.Title = items.Title; // Sætter title
@@ -150,11 +153,13 @@ namespace NewsPlugin
             }
             else Feeds.FeedsDictionary[checkBox.Name] = true;
 
+            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsDictionary);
+
         }
 
         public void Init(PluginInitContext context)
         {
-            //throw new NotImplementedException();
+            
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace NewsPlugin
 {
-    class RssManager : IDisposable
+    public class RssManager : IDisposable
     {
         private string _url;
         private string _feedTitle;
@@ -20,7 +20,7 @@ namespace NewsPlugin
 
         public RssManager()
         {
-            Url = string.Empty;
+            Url = "rss.rss";// string.Empty;
         }
 
         public RssManager(string feedUrl)
@@ -47,40 +47,40 @@ namespace NewsPlugin
                 // Parse the items of the feed
                 ParseDocElements(xmlDoc.SelectSingleNode("//channel"), "title", ref _feedTitle);
                 ParseDocElements(xmlDoc.SelectSingleNode("//channel"), "description", ref _feedDescription);
-                ParseRssItems(xmlDoc);
+                _rssItems.Clear();
+                XmlNodeList nodes = xmlDoc.SelectNodes("rss/channel/item");
+
+                foreach (XmlNode node in nodes)
+                {
+                    Rss.Items item = new Rss.Items();
+                    ParseDocElements(node, "title", ref item.Title);
+                    ParseDocElements(node, "description", ref item.Description);
+                    ParseDocElements(node, "link", ref item.Link);
+
+                    string date = null;
+                    ParseDocElements(node, "pubDate", ref date);
+                    DateTime.TryParse(date, out item.Date);
+
+                    _rssItems.Add(item);
+                }
 
                 return _rssItems;
             }
         }
 
-        private void ParseRssItems(XmlDocument xmlDoc)
-        {
-            _rssItems.Clear();
-            XmlNodeList nodes = xmlDoc.SelectNodes("rss/channel/item");
-
-            foreach (XmlNode node in nodes)
-            {
-                Rss.Items item = new Rss.Items();
-                ParseDocElements(node, "title", ref item.Title);
-                ParseDocElements(node, "description", ref item.Description);
-                ParseDocElements(node, "link", ref item.Link);
-
-                string date = null;
-                ParseDocElements(node, "pubDate", ref date);
-                DateTime.TryParse(date, out item.Date);
-
-                _rssItems.Add(item);
-            }
-        }
-
-        private void ParseDocElements(XmlNode parent, string xPath, ref string property)
+        private bool ParseDocElements(XmlNode parent, string xPath, ref string property)
         {
             XmlNode node = parent.SelectSingleNode(xPath);
             if (node != null)
             {
                 property = node.InnerText;
+                return true;
             }
-            else property = "Unresolvable";
+            else
+            {
+                property = "Unresolvable";
+                return false;
+            }
         }
 
 

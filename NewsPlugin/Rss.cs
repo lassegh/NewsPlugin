@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NewsPlugin
 {
-    class Rss
+    public class Rss
     {
         /// <summary>
         /// A structure to hold the RSS Feed items
