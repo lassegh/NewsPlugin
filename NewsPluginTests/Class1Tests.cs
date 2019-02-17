@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Moq;
+using Wox.Plugin;
 
 namespace NewsPlugin.Tests
 {
@@ -13,13 +14,23 @@ namespace NewsPlugin.Tests
     public class Class1Tests
     {
 
-        /*
+
         [TestMethod()]
         public void QueryTest()
         {
-            //Mock mockQuery = new Mock<Query>();
-            Assert.Fail();
-        }*/
+            string queryString = "Kænguru";
+            RssManager reader = new RssManager();
+            List<string> titleList = new List<string>();
+            foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
+            {
+                if (items.Title.ToLower().Contains(queryString.ToLower())) // Tjekker om query passer med noget i historien
+                {
+                    titleList.Add(items.Title); // tilføjer til listen
+                }
+            }
+
+            Assert.IsTrue(titleList[0].Contains(queryString));
+        }
 
         [TestMethod()]
         public void NewStoryTest()
