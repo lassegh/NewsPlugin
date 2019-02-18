@@ -52,6 +52,10 @@ namespace NewsPlugin
                     }
                 }
             }
+
+            results = results.OrderBy(o => o.SubTitle).ToList();
+            results.Reverse();
+
             return results;
         }
 
@@ -59,7 +63,7 @@ namespace NewsPlugin
         {
             Result newStory = new Result(); // Opretter resultat til listen
             newStory.Title = items.Title; // Sætter title
-            newStory.SubTitle = items.Date.ToShortDateString() + " " + dictionaryKey; // Sætter subtitle til dato + navn på feed
+            newStory.SubTitle = items.Date.ToString();
             newStory.IcoPath = Feeds.FeedsIcon[dictionaryKey];
 
             newStory.Action = context => // sætter action på hver story
