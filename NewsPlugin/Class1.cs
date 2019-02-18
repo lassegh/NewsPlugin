@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,13 +17,26 @@ namespace NewsPlugin
 {
     public class Class1 : IPlugin
     {
+        private static async void LoadFeeds()
+        {
+            Feeds.FeedsList = await JsonReadWrite.LoadFeedsFromJsonAsync();
+        }
+
         public List<Result> Query(Query query)
         {
             List<Result> results = new List<Result>(); // Opretter liste af resultater
 
-            /* Settings window has been commented out, as it is not fully implemented 
+            if (Feeds.FeedsList.Count == 0)
+            {
+                
+                Feeds.HardcodedFeeds();
+                // TODO Else load hardcoded feeds og gem til fil
+
+            }
+
+            //Settings window 
             results.Add(SettingsWindow()); // tilføjer til listen
-            */
+
 
             string queryString = ""; // Opretter string til søgeresultat
 
@@ -31,11 +45,11 @@ namespace NewsPlugin
                 queryString = query.RawQuery.Substring(4); // Tilføjer søgning til string
             }
 
-            foreach (string dictionaryKey in Feeds.FeedsDictionary.Keys) // Gennemløber alle feeds i Feeds
+            foreach (Feeds feed in Feeds.FeedsList) // Gennemløber alle feeds i Feeds
             {
-                if (Feeds.FeedsDictionary[dictionaryKey]) // Tjekker om feeded skal bruges (bool)
+                if (feed.ToBeSeen) // Tjekker om feeded skal bruges (bool)
                 {
-                    RssManager reader = new RssManager(Feeds.FeedsUrl[dictionaryKey]); // Opretter reader med feeded
+                    RssManager reader = new RssManager(feed.FeedUrl); // Opretter reader med feeded
 
                     foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
                     {
@@ -45,10 +59,10 @@ namespace NewsPlugin
                                 items.Description.ToLower().Contains(queryString.ToLower())
                             ) // Tjekker om query passer med noget i historien
                             {
-                                results.Add(NewStory(items, dictionaryKey)); // tilføjer til listen
+                                results.Add(NewStory(items, feed.ImagePath)); // tilføjer til listen
                             }
                         }
-                        else results.Add(NewStory(items, dictionaryKey)); // tilføjer alle stories til listen
+                        else results.Add(NewStory(items, feed.ImagePath)); // tilføjer alle stories til listen
                     }
                 }
             }
@@ -59,12 +73,12 @@ namespace NewsPlugin
             return results;
         }
 
-        public Result NewStory(Rss.Items items, string dictionaryKey)
+        public Result NewStory(Rss.Items items, string imagePath)
         {
             Result newStory = new Result(); // Opretter resultat til listen
             newStory.Title = items.Title; // Sætter title
             newStory.SubTitle = items.Date.ToString();
-            newStory.IcoPath = Feeds.FeedsIcon[dictionaryKey];
+            newStory.IcoPath = imagePath;
 
             newStory.Action = context => // sætter action på hver story
             {
@@ -76,10 +90,11 @@ namespace NewsPlugin
             return newStory;
         }
 
-        private Result SettingsWindow()
+        public static Result SettingsWindow()
         {
             Result newSetting = new Result(); // Opretter resultat til listen
             newSetting.Title = "Settings";
+            newSetting.SubTitle = DateTime.Now.ToString();
             newSetting.Action = context => // sætter action på hver story
             {
 
@@ -93,45 +108,21 @@ namespace NewsPlugin
                     Label label = new Label();
                     label.Content = "Settings";
                     label.Height = 100;
-                    label.Width = 50;
-
-                    CheckBox dynamicCheckBox_DR = new CheckBox();
-                    dynamicCheckBox_DR.Name = "DynamicCheckBox_DR";
-                    dynamicCheckBox_DR.Content = "Dr1";
-                    dynamicCheckBox_DR.IsChecked = Feeds.FeedsDictionary["Dr1"];
-                    dynamicCheckBox_DR.Width = 50;
-                    dynamicCheckBox_DR.Height = 50;
-                    dynamicCheckBox_DR.Checked += CheckboxChecked;
-
-                    CheckBox dynamicCheckBox_TV2 = new CheckBox();
-                    dynamicCheckBox_TV2.Name = "DynamicCheckBox_TV2";
-                    dynamicCheckBox_TV2.Content = "Tv2";
-                    dynamicCheckBox_TV2.IsChecked = Feeds.FeedsDictionary["Tv2"];
-                    dynamicCheckBox_TV2.Width = 50;
-                    dynamicCheckBox_TV2.Height = 50;
-                    dynamicCheckBox_TV2.Checked += CheckboxChecked;
-
-                    CheckBox dynamicCheckBox_BT = new CheckBox();
-                    dynamicCheckBox_BT.Name = "DynamicCheckBox_BT";
-                    dynamicCheckBox_BT.Content = "Bt";
-                    dynamicCheckBox_BT.IsChecked = Feeds.FeedsDictionary["Bt"];
-                    dynamicCheckBox_BT.Width = 50;
-                    dynamicCheckBox_BT.Height = 50;
-                    dynamicCheckBox_BT.Checked += CheckboxChecked;
-
-                    CheckBox dynamicCheckBox_EB = new CheckBox();
-                    dynamicCheckBox_EB.Name = "DynamicCheckBox_EB";
-                    dynamicCheckBox_EB.Content = "Eb";
-                    dynamicCheckBox_BT.IsChecked = Feeds.FeedsDictionary["Eb"];
-                    dynamicCheckBox_EB.Width = 50;
-                    dynamicCheckBox_EB.Height = 50;
-                    dynamicCheckBox_EB.Checked += CheckboxChecked;
-
+                    label.Width = 100;
                     stackPanel.Children.Add(label);
-                    stackPanel.Children.Add(dynamicCheckBox_DR);
-                    stackPanel.Children.Add(dynamicCheckBox_TV2);
-                    stackPanel.Children.Add(dynamicCheckBox_BT);
-                    stackPanel.Children.Add(dynamicCheckBox_EB);
+
+                    foreach (Feeds feed in Feeds.FeedsList)
+                    {
+                        CheckBox checkbox = new CheckBox();
+                        checkbox.Name = feed.Name;
+                        checkbox.Content = feed.Name;
+                        checkbox.IsChecked = feed.ToBeSeen;
+                        checkbox.Width = 50;
+                        checkbox.Height = 50;
+                        checkbox.Checked += CheckboxChecked;
+                        stackPanel.Children.Add(checkbox);
+                    }
+
                     bw.Content = stackPanel;
                     bw.Show();
                     bw.Closed += (s, e) => bw.Dispatcher.InvokeShutdown();
@@ -147,23 +138,42 @@ namespace NewsPlugin
             return newSetting;
         }
 
-        private void CheckboxChecked(Object sender, RoutedEventArgs e)
+        public static void CheckboxChecked(Object sender, RoutedEventArgs e)
         {
-            CheckBox checkBox = sender as CheckBox;
-
-            if (checkBox.IsChecked == false)
+            if (sender is CheckBox)
             {
-                Feeds.FeedsDictionary[checkBox.Name] = false;
+                CheckBox checkBox = (CheckBox)sender;
+
+                if (checkBox.IsChecked == false)
+                {
+                    foreach (Feeds feed in Feeds.FeedsList)
+                    {
+                        if (feed.Name.Equals(checkBox.Name))
+                        {
+                            feed.ToBeSeen = false;
+                            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
+                        }
+                    }
+
+                }
+                else
+                {
+
+                    foreach (Feeds feed in Feeds.FeedsList)
+                    {
+                        if (feed.Name.Equals(checkBox.Name))
+                        {
+                            feed.ToBeSeen = true;
+                            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
+                        }
+                    }
+                }
             }
-            else Feeds.FeedsDictionary[checkBox.Name] = true;
-
-            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsDictionary);
-
         }
 
         public void Init(PluginInitContext context)
         {
-            
+
         }
     }
 }

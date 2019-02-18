@@ -18,18 +18,12 @@ namespace NewsPlugin.Tests
         [TestMethod()]
         public void QueryTest()
         {
-            string queryString = "Kænguru";
-            RssManager reader = new RssManager();
-            List<string> titleList = new List<string>();
-            foreach (Rss.Items items in reader.GetFeed()) // Gennemløber de enkelte feeds
-            {
-                if (items.Title.ToLower().Contains(queryString.ToLower())) // Tjekker om query passer med noget i historien
-                {
-                    titleList.Add(items.Title); // tilføjer til listen
-                }
-            }
-
-            Assert.IsTrue(titleList[0].Contains(queryString));
+            /*
+            var query = new Mock<Query>();
+            query.SetupProperty(x => x.RawQuery, "brøndby");
+            Class1 obj = new Class1();
+            
+            Assert.IsTrue(obj.Query(query.Object).Count>0);*/
         }
 
         [TestMethod()]
@@ -43,6 +37,13 @@ namespace NewsPlugin.Tests
             }
 
             Assert.AreEqual(titleList[0], "Kænguru på springtur er hjemme i god behold igen");
+        }
+
+        [TestMethod()]
+        public void SettingsWindowTest()
+        {
+            Result newResult = Class1.SettingsWindow();
+            Assert.AreEqual(newResult.Title,"Settings");
         }
     }
 }

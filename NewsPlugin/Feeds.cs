@@ -6,29 +6,31 @@ using System.Threading.Tasks;
 
 namespace NewsPlugin
 {
-    static class Feeds
+    public class Feeds
     {
-        public static Dictionary<string,bool> FeedsDictionary = new Dictionary<string, bool>()
+        public Feeds(bool beSeen, string name, string feedUrl, string imagePath)
         {
-            {"Dr1",true},
-            {"Tv2",true},
-            {"Bt",true},
-            {"Eb",true}
-        };
-        //
-        public static Dictionary<string, string> FeedsUrl = new Dictionary<string, string>()
+            ToBeSeen = beSeen;
+            Name = name;
+            FeedUrl = feedUrl;
+            ImagePath = imagePath;
+
+            FeedsList.Add(this);
+        }
+
+        public static List<Feeds> FeedsList = new List<Feeds>();
+
+        public static void HardcodedFeeds()
         {
-            {"Dr1","https://www.dr.dk/nyheder/service/feeds/allenyheder"},
-            {"Tv2","http://feeds.tv2.dk/nyhederne_seneste/rss" },
-            {"Bt","https://www.bt.dk/bt/seneste/rss" },
-            {"Eb","https://ekstrabladet.dk/rssfeed/all/" }
-        };
-        public static Dictionary<string, string> FeedsIcon = new Dictionary<string, string>()
-        {
-            {"Dr1","Image\\dr.png"},
-            {"Tv2","Image\\tv2.png" },
-            {"Bt","Image\\bt.png" },
-            {"Eb","Image\\eb.png" }
-        };
+            new Feeds(true,"DR1", "https://www.dr.dk/nyheder/service/feeds/allenyheder", "Image\\dr.png");
+            new Feeds(true,"TV2", "http://feeds.tv2.dk/nyhederne_seneste/rss", "Image\\tv2.png");
+            new Feeds(true,"BT", "https://www.bt.dk/bt/seneste/rss", "Image\\bt.png");
+            new Feeds(true,"EB", "https://ekstrabladet.dk/rssfeed/all/", "Image\\eb.png");
+        }
+
+        public bool ToBeSeen { get; set; }
+        public string Name { get; set; }
+        public string FeedUrl { get; set; }
+        public string ImagePath { get; set; }
     }
 }
