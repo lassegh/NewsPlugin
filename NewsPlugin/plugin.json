@@ -7,6 +7,6 @@
   "Version":"1.0.0",             
   "Language":"csharp",     
   "Website":"http://www.github.com/lassegh",        
-  "IcoPath": "tv2.png",
+  "IcoPath": "image\\news.png",
   "ExecuteFileName":"NewsPlugin.dll"   
 }

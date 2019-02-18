@@ -25,10 +25,10 @@ namespace NewsPlugin
         };
         public static Dictionary<string, string> FeedsIcon = new Dictionary<string, string>()
         {
-            {"Dr1","Images\\dr.png"},
-            {"Tv2","Images\\tv2.png" },
-            {"Bt","Images\\bt.png" },
-            {"Eb","Images\\eb.png" }
+            {"Dr1","Image\\dr.png"},
+            {"Tv2","Image\\tv2.png" },
+            {"Bt","Image\\bt.png" },
+            {"Eb","Image\\eb.png" }
         };
     }
 }
