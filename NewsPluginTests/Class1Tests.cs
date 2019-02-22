@@ -38,12 +38,5 @@ namespace NewsPlugin.Tests
 
             Assert.AreEqual(titleList[0], "Kænguru på springtur er hjemme i god behold igen");
         }
-
-        [TestMethod()]
-        public void SettingsWindowTest()
-        {
-            Result newResult = Class1.SettingsWindow();
-            Assert.AreEqual(newResult.Title,"Settings");
-        }
     }
 }

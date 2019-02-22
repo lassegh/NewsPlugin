@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using Wox.Plugin;
 using CheckBox = System.Windows.Controls.CheckBox;
@@ -17,9 +19,12 @@ namespace NewsPlugin
 {
     public class Class1 : IPlugin
     {
+        private static List<CheckBox> checkboxList;
+        private static Window bw;
+
         private static async void LoadFeeds()
         {
-            Feeds.FeedsList = await JsonReadWrite.LoadFeedsFromJsonAsync();
+            Feeds.FeedsList = JsonReadWrite.LoadFeedsFromJsonAsync();
         }
 
         public List<Result> Query(Query query)
@@ -28,10 +33,15 @@ namespace NewsPlugin
 
             if (Feeds.FeedsList.Count == 0)
             {
-                
-                Feeds.HardcodedFeeds();
-                // TODO Else load hardcoded feeds og gem til fil
-
+                try
+                {
+                    Feeds.FeedsList = JsonReadWrite.LoadFeedsFromJsonAsync();
+                }
+                catch (Exception e)
+                {
+                     Feeds.HardcodedFeeds();
+                }
+                //Feeds.HardcodedFeeds();
             }
 
             //Settings window 
@@ -90,7 +100,7 @@ namespace NewsPlugin
             return newStory;
         }
 
-        public static Result SettingsWindow()
+        public Result SettingsWindow()
         {
             Result newSetting = new Result(); // Opretter resultat til listen
             newSetting.Title = "Settings";
@@ -100,10 +110,10 @@ namespace NewsPlugin
 
                 var thread = new Thread(() =>
                 {
-                    var bw = new Window();
-                    bw.MaxHeight = 400;
-                    bw.MaxWidth = 300;
-
+                    bw = new Window();
+                    bw.Height = 800;
+                    bw.Width = 500;
+                    
                     StackPanel stackPanel = new StackPanel();
                     Label label = new Label();
                     label.Content = "Settings";
@@ -111,17 +121,53 @@ namespace NewsPlugin
                     label.Width = 100;
                     stackPanel.Children.Add(label);
 
+                    Grid grid = new Grid();
+                    grid.ColumnDefinitions.Add(new ColumnDefinition(){Width = new GridLength(250)});
+                    grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(250) });
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    stackPanel.Children.Add(grid);
+
+                    checkboxList = new List<CheckBox>();
+                    int rowDefinition = 0;
+                    int columnDefinition = 0;
+
                     foreach (Feeds feed in Feeds.FeedsList)
                     {
                         CheckBox checkbox = new CheckBox();
-                        checkbox.Name = feed.Name;
                         checkbox.Content = feed.Name;
                         checkbox.IsChecked = feed.ToBeSeen;
-                        checkbox.Width = 50;
+                        checkbox.Width = 200;
                         checkbox.Height = 50;
-                        checkbox.Checked += CheckboxChecked;
-                        stackPanel.Children.Add(checkbox);
+                        checkbox.HorizontalAlignment = HorizontalAlignment.Left;
+                        checkbox.Margin = new Thickness(10,0,0,0);
+                        grid.Children.Add(checkbox);
+                        Grid.SetColumn(checkbox,columnDefinition);
+                        Grid.SetRow(checkbox, rowDefinition);
+                        checkboxList.Add(checkbox);
+
+                        rowDefinition++;
+                        if (rowDefinition == 8)
+                        {
+                            rowDefinition = 0;
+                            columnDefinition = 1;
+                        }
                     }
+
+                    Button saveSettings = new Button();
+                    saveSettings.FontSize = 16;
+                    saveSettings.Content = "Save settings";
+                    saveSettings.Height = 100;
+                    saveSettings.Width = 500;
+                    saveSettings.Click += SaveSettings_Click;
+                    stackPanel.Children.Add(saveSettings);
 
                     bw.Content = stackPanel;
                     bw.Show();
@@ -138,37 +184,19 @@ namespace NewsPlugin
             return newSetting;
         }
 
-        public static void CheckboxChecked(Object sender, RoutedEventArgs e)
+        private static void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox)
+            for (int i = 0; i < checkboxList.Count; i++)
             {
-                CheckBox checkBox = (CheckBox)sender;
-
-                if (checkBox.IsChecked == false)
+                if (checkboxList[i].IsChecked.HasValue && checkboxList[i].IsChecked.Value)
                 {
-                    foreach (Feeds feed in Feeds.FeedsList)
-                    {
-                        if (feed.Name.Equals(checkBox.Name))
-                        {
-                            feed.ToBeSeen = false;
-                            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
-                        }
-                    }
-
+                    Feeds.FeedsList[i].ToBeSeen = true;
                 }
-                else
-                {
-
-                    foreach (Feeds feed in Feeds.FeedsList)
-                    {
-                        if (feed.Name.Equals(checkBox.Name))
-                        {
-                            feed.ToBeSeen = true;
-                            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
-                        }
-                    }
-                }
+                else Feeds.FeedsList[i].ToBeSeen = false;
             }
+            bw.Close();
+            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
+            
         }
 
         public void Init(PluginInitContext context)

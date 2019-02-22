@@ -15,106 +15,56 @@ namespace NewsPlugin
 {
     static class JsonReadWrite
     {
-        public static void WriteToTextFile(string textLog)
+        public static async void DocModeCreateFile(string jsonString)
         {
-            FileStream objFS = null;
+            string folderName = @"c:\WoxNews";
 
+            string pathString = System.IO.Path.Combine(folderName, "Feeds");
 
-            string strFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\Exception Log\" + System.DateTime.Now.ToString("yyyy-MM-dd ") + "Exception.log";
-            if (!File.Exists(strFilePath))
+            System.IO.Directory.CreateDirectory(pathString);
+ 
+            string fileName = @"newsfeeds.json";
+
+            pathString = System.IO.Path.Combine(pathString, fileName);
+
+            UnicodeEncoding ue = new UnicodeEncoding();
+            char[] charsToAdd = ue.GetChars(ue.GetBytes(jsonString));
+
+            using (StreamWriter writer = File.CreateText(pathString))
             {
-                objFS = new FileStream(strFilePath, FileMode.Create);
+                await writer.WriteAsync(charsToAdd, 0, charsToAdd.Length);
             }
-            else
-                objFS = new FileStream(strFilePath, FileMode.Append);
+            
+        } 
 
-            using (StreamWriter Sr = new StreamWriter(objFS))
-            {
-                Sr.WriteLine(System.DateTime.Now.ToShortTimeString() + "---" + textLog);
-            }
-
-        }
-
-        static void CreateFileMsDoc()
-        {
-            string path = @"c:\woxnews\MyTest.txt";
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    sw.WriteLine("Hello");
-                    sw.WriteLine("And");
-                    sw.WriteLine("Welcome");
-                }
-            }
-
-            // Open the file to read from.
-            using (StreamReader sr = File.OpenText(path))
-            {
-                string s = "";
-                while ((s = sr.ReadLine()) != null)
-                {
-                    Console.WriteLine(s);
-                }
-            }
-        }
-
-        private static string destination = AppDomain.CurrentDomain.BaseDirectory + @"\feeds.json";
+        private static string destination = @"c:\WoxNews\Feeds\newsfeeds.json";
 
         /// <summary>
         /// Gemmer projektets data
         /// </summary>
-        /// <param name="feed"></param>
+        /// <param name="feedList"></param>
         public static async void SaveFeedsAsJsonAsync(List<Feeds> feedList)
         {
             string notesJsonString = JsonConvert.SerializeObject(feedList);
-            SerializeFeedsFileAsync(notesJsonString);
-        }
-
-        // motode der kaldes i SaveNotesAsJsonAsync()
-        private static async void SerializeFeedsFileAsync(string notesJsonString)
-        {
-
-            var streamManager = new RecyclableMemoryStreamManager();
-
-            using (var file = File.Open(destination, FileMode.Create))
-            {
-                using (var memoryStream = streamManager.GetStream()) // RecyclableMemoryStream will be returned, it inherits MemoryStream, however prevents data allocation into the LOH
-                {
-                    using (var writer = new StreamWriter(memoryStream))
-                    {
-                        var serializer = JsonSerializer.CreateDefault();
-
-                        serializer.Serialize(writer, notesJsonString);
-
-                        await writer.FlushAsync().ConfigureAwait(false);
-
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-
-                        await memoryStream.CopyToAsync(file).ConfigureAwait(false);
-                    }
-                }
-
-                await file.FlushAsync().ConfigureAwait(false);
-            }
+            DocModeCreateFile(notesJsonString);
         }
 
         /// <summary>
         /// Loader projektets data
         /// </summary>
         /// <returns></returns>
-        public static async Task<List<Feeds>> LoadFeedsFromJsonAsync()
+        public static List<Feeds> LoadFeedsFromJsonAsync()
         {
-            string notesJsonString = await DeserializeFeedsFileAsync(destination);
+            string notesJsonString = DeserializeFeedsFileAsync(destination);
             return (List<Feeds>)JsonConvert.DeserializeObject(notesJsonString, typeof(List<Feeds>));
         }
 
        // metode der kaldes i LoadNotesFromJsonAsync()
-        private static async Task<string> DeserializeFeedsFileAsync(string path)
+        private static string DeserializeFeedsFileAsync(string path)
         {
             // Open the file to read from.
             return File.ReadAllText(path);
         }
+
     }
 }
