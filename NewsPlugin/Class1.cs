@@ -184,7 +184,7 @@ namespace NewsPlugin
             return newSetting;
         }
 
-        private static void SaveSettings_Click(object sender, RoutedEventArgs e)
+        private static async void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < checkboxList.Count; i++)
             {
@@ -195,7 +195,7 @@ namespace NewsPlugin
                 else Feeds.FeedsList[i].ToBeSeen = false;
             }
             bw.Close();
-            JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
+            await JsonReadWrite.SaveFeedsAsJsonAsync(Feeds.FeedsList);
             
         }
 

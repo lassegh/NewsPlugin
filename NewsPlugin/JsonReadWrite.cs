@@ -15,7 +15,7 @@ namespace NewsPlugin
 {
     static class JsonReadWrite
     {
-        public static async void DocModeCreateFile(string jsonString)
+        public static async Task DocModeCreateFile(string jsonString)
         {
             string folderName = @"c:\WoxNews";
 
@@ -43,10 +43,10 @@ namespace NewsPlugin
         /// Gemmer projektets data
         /// </summary>
         /// <param name="feedList"></param>
-        public static async void SaveFeedsAsJsonAsync(List<Feeds> feedList)
+        public static async Task SaveFeedsAsJsonAsync(List<Feeds> feedList)
         {
             string notesJsonString = JsonConvert.SerializeObject(feedList);
-            DocModeCreateFile(notesJsonString);
+            await DocModeCreateFile(notesJsonString);
         }
 
         /// <summary>
